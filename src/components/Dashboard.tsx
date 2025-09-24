@@ -10,11 +10,13 @@ import { Progress } from "@/components/ui/progress";
 import { BookOpen, Play, ExternalLink, User, Settings, LogOut, Trophy, Clock, Star } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { useCourses, useArticles, useUserProfile, useUserProgress } from "@/hooks/useSupabaseData";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import abnpLogo from "@/assets/abnp-logo.png";
 
 export const Dashboard = () => {
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { courses, loading: coursesLoading } = useCourses();
   const { articles, loading: articlesLoading } = useArticles();
@@ -207,7 +209,7 @@ export const Dashboard = () => {
                           <Button 
                             size="sm" 
                             className="hover-lift"
-                            onClick={() => course.youtube_url && window.open(course.youtube_url, '_blank')}
+                            onClick={() => navigate("/curso-gratuito")}
                           >
                             <Play className="h-4 w-4 mr-2" />
                             Assistir
