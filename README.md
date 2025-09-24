@@ -1,73 +1,154 @@
-# Welcome to your Lovable project
+# 🧠 ABNP - Academia Brasileira de Neurociência Política
 
-## Project info
+Uma plataforma educacional moderna e responsiva para a Academia Brasileira de Neurociência Política, oferecendo acesso gratuito a conteúdos sobre neurociência aplicada à política.
 
-**URL**: https://lovable.dev/projects/28f1674e-8579-4383-a20e-8bdf9c993636
+## ✨ Características
 
-## How can I edit this code?
+### 🎯 **Funcionalidades Principais**
+- **Landing Page Atrativa**: Design acadêmico profissional com formulários de login/cadastro
+- **Dashboard Interativo**: Painel completo do aluno com navegação intuitiva
+- **Cursos Gratuitos**: Acesso a vídeos educacionais curados
+- **Blog Integration**: RSS feed do site oficial da ABNP
+- **Ofertas Especiais**: Promoções exclusivas do Método NeuroCP
+- **Perfil do Usuário**: Gerenciamento de dados e acompanhamento de progresso
 
-There are several ways of editing your application.
+### 🎨 **Design System**
+- **Cores Acadêmicas**: Paleta profissional com azul, roxo e detalhes dourados
+- **Tipografia Elegante**: Inter + Playfair Display para máxima legibilidade
+- **Animações Suaves**: Micro-interações que elevam a experiência
+- **Responsivo**: Design adaptativo para todos os dispositivos
+- **Acessibilidade**: Implementação de boas práticas de UX
 
-**Use Lovable**
+## 🚀 Como Executar
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/28f1674e-8579-4383-a20e-8bdf9c993636) and start prompting.
+### Pré-requisitos
+- Node.js 16+ 
+- npm ou yarn
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+### Instalação
+```bash
+# Clone o repositório
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Navegue para o diretório
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Instale as dependências
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Execute o servidor de desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 🛠️ Stack Técnica
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Frontend
+- **React 18** - Interface moderna e reativa
+- **TypeScript** - Tipagem estática para maior robustez
+- **Tailwind CSS** - Sistema de design consistente e escalável
+- **shadcn/ui** - Componentes de alta qualidade
+- **Lucide React** - Ícones vetoriais elegantes
+- **Vite** - Build tool rápido e moderno
 
-**Use GitHub Codespaces**
+### Integrações Planejadas
+- **Supabase** - Backend completo (auth, database, storage)
+- **YouTube API** - Integração com playlists educacionais  
+- **RSS Feeds** - Consumo automático do blog oficial
+- **Hotmart** - Links para cursos premium
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🔧 Configuração Futura
 
-## What technologies are used for this project?
+### Variáveis de Ambiente
+Quando conectado ao Supabase, configure:
 
-This project is built with:
+```env
+# Supabase
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_ANON_KEY=your_supabase_key
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+# Integrações Externas
+YOUTUBE_PLAYLIST_ID=PLxxxx
+BLOG_RSS_URL=https://academiadaneuropolitica.com.br/feed/
+HOTMART_COURSE_URL=https://hotmart.com/pt-br/marketplace/produtos/metodo-neurocp
+HOTMART_COUPON_CODE=ABNP10
+```
 
-## How can I deploy this project?
+## 📱 Funcionalidades por Seção
 
-Simply open [Lovable](https://lovable.dev/projects/28f1674e-8579-4383-a20e-8bdf9c993636) and click on Share -> Publish.
+### 🏠 **Landing Page**
+- Hero section com call-to-action
+- Formulários de login/cadastro com validação
+- Apresentação dos benefícios da plataforma
+- Design gradient atrativo
 
-## Can I connect a custom domain to my Lovable project?
+### 📊 **Dashboard**
+- Visão geral do progresso do aluno
+- Últimos vídeos e artigos em destaque
+- Ofertas especiais personalizadas
+- Navegação lateral intuitiva
 
-Yes, you can!
+### 🎓 **Cursos Gratuitos**
+- Player de vídeos integrado
+- Lista organizada de conteúdos
+- Acompanhamento de progresso
+- Call-to-action para curso premium
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### 📰 **Blog**
+- Feed automático via RSS
+- Layout limpo e legível
+- Links para artigos completos
+- Sistema de busca (futuro)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### 💰 **Ofertas**
+- Destaque para o Método NeuroCP
+- Sistema de cupons de desconto
+- Preços dinâmicos
+- Integração com Hotmart
+
+### 👤 **Perfil**
+- Edição de dados pessoais
+- Histórico de aprendizado
+- Configurações de notificação
+- Estatísticas de uso
+
+## 🔒 Segurança
+
+- Validação client-side e server-side
+- Sanitização de inputs
+- Autenticação segura via Supabase
+- Proteção contra XSS e CSRF
+
+## 🚀 Deploy
+
+### Lovable (Recomendado)
+1. Acesse [Lovable](https://lovable.dev)
+2. Clique em "Share" → "Publish"
+3. Configure domínio personalizado se necessário
+
+### Alternativas
+- **Vercel**: Deploy automático via GitHub
+- **Netlify**: Integração contínua
+- **VPS**: Docker + Caddy (conforme especificado)
+
+## 📈 Roadmap Futuro
+
+- [ ] **Integração Supabase** - Auth e database
+- [ ] **YouTube Player** - Reprodução de playlists
+- [ ] **RSS Reader** - Consumo automático do blog  
+- [ ] **Sistema de Notificações** - E-mail e push
+- [ ] **Gamificação** - Badges e conquistas
+- [ ] **Comentários** - Interação entre alunos
+- [ ] **Certificados** - Geração automática
+- [ ] **Mobile App** - PWA ou React Native
+
+## 🤝 Contribuição
+
+Este projeto foi desenvolvido especificamente para a ABNP. Para sugestões ou melhorias, entre em contato através dos canais oficiais da academia.
+
+## 📄 Licença
+
+Todos os direitos reservados à Academia Brasileira de Neurociência Política.
+
+---
+
+**Desenvolvido com ❤️ para transformar a educação em neurociência política no Brasil**
