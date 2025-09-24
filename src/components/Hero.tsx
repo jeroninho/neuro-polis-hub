@@ -14,7 +14,8 @@ export const Hero = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    password: ""
+    password: "",
+    phone: ""
   });
 
   const handleSubmit = async (e: React.FormEvent, type: 'login' | 'register') => {
@@ -43,7 +44,7 @@ export const Hero = () => {
       let error;
 
       if (type === 'register') {
-        const result = await signUp(formData.email, formData.password, formData.name);
+        const result = await signUp(formData.email, formData.password, formData.name, formData.phone);
         error = result.error;
       } else {
         const result = await signIn(formData.email, formData.password);
@@ -175,6 +176,17 @@ export const Hero = () => {
                           onChange={handleInputChange}
                           placeholder="Seu nome completo"
                           required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Telefone</Label>
+                        <Input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          placeholder="(11) 99999-9999"
                         />
                       </div>
                       <div className="space-y-2">
