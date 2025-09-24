@@ -6,20 +6,18 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, BookOpen, Award, Users } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import abnpLogo from "@/assets/abnp-logo.png";
 
-interface HeroProps {
-  onLogin: (userData: { name: string; email: string }) => void;
-}
-
-export const Hero = ({ onLogin }: HeroProps) => {
+export const Hero = () => {
+  const { signUp, signIn } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: ""
   });
 
-  const handleSubmit = (e: React.FormEvent, type: 'login' | 'register') => {
+  const handleSubmit = async (e: React.FormEvent, type: 'login' | 'register') => {
     e.preventDefault();
     
     // Basic validation
@@ -41,17 +39,40 @@ export const Hero = ({ onLogin }: HeroProps) => {
       return;
     }
 
-    // Mock authentication - in real app, this would be Supabase
-    toast({
-      title: type === 'login' ? "Login realizado!" : "Cadastro realizado!",
-      description: `Bem-vindo à plataforma ABNP, ${formData.name || 'usuário'}!`,
-    });
+    try {
+      let error;
 
-    // Simulate successful authentication
-    onLogin({
-      name: formData.name || formData.email.split('@')[0],
-      email: formData.email
-    });
+      if (type === 'register') {
+        const result = await signUp(formData.email, formData.password, formData.name);
+        error = result.error;
+      } else {
+        const result = await signIn(formData.email, formData.password);
+        error = result.error;
+      }
+
+      if (error) {
+        toast({
+          title: "Erro de autenticação",
+          description: error.message || "Ocorreu um erro durante a autenticação.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: type === 'login' ? "Login realizado!" : "Cadastro realizado!",
+        description: type === 'register' 
+          ? "Verifique seu e-mail para confirmar o cadastro."
+          : `Bem-vindo à plataforma ABNP!`,
+      });
+
+    } catch (err) {
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro inesperado. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
