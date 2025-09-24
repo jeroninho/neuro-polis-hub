@@ -130,25 +130,34 @@ export type Database = {
           completed_at: string | null
           course_id: string
           created_at: string
+          current_video_id: string | null
           id: string
+          last_position_seconds: number | null
           progress_percentage: number | null
           user_id: string
+          watch_time_seconds: number | null
         }
         Insert: {
           completed_at?: string | null
           course_id: string
           created_at?: string
+          current_video_id?: string | null
           id?: string
+          last_position_seconds?: number | null
           progress_percentage?: number | null
           user_id: string
+          watch_time_seconds?: number | null
         }
         Update: {
           completed_at?: string | null
           course_id?: string
           created_at?: string
+          current_video_id?: string | null
           id?: string
+          last_position_seconds?: number | null
           progress_percentage?: number | null
           user_id?: string
+          watch_time_seconds?: number | null
         }
         Relationships: [
           {
@@ -159,6 +168,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      video_sessions: {
+        Row: {
+          completed: boolean
+          completion_percentage: number
+          created_at: string
+          id: string
+          last_position_seconds: number
+          session_end: string | null
+          session_start: string
+          updated_at: string
+          user_id: string
+          video_duration_seconds: number | null
+          video_id: string
+          watch_time_seconds: number
+        }
+        Insert: {
+          completed?: boolean
+          completion_percentage?: number
+          created_at?: string
+          id?: string
+          last_position_seconds?: number
+          session_end?: string | null
+          session_start?: string
+          updated_at?: string
+          user_id: string
+          video_duration_seconds?: number | null
+          video_id: string
+          watch_time_seconds?: number
+        }
+        Update: {
+          completed?: boolean
+          completion_percentage?: number
+          created_at?: string
+          id?: string
+          last_position_seconds?: number
+          session_end?: string | null
+          session_start?: string
+          updated_at?: string
+          user_id?: string
+          video_duration_seconds?: number | null
+          video_id?: string
+          watch_time_seconds?: number
+        }
+        Relationships: []
       }
     }
     Views: {
