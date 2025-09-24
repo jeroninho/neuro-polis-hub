@@ -51,9 +51,24 @@ export const Hero = () => {
       }
 
       if (error) {
+        let errorMessage = "Ocorreu um erro durante a autenticação.";
+        
+        // Handle specific error cases
+        if (error.message?.includes("Email not confirmed")) {
+          errorMessage = "Você precisa confirmar seu e-mail antes de fazer login. Verifique sua caixa de entrada e spam.";
+        } else if (error.message?.includes("Invalid login credentials")) {
+          errorMessage = "E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.";
+        } else if (error.message?.includes("User already registered")) {
+          errorMessage = "Este e-mail já está cadastrado. Tente fazer login ou recuperar sua senha.";
+        } else if (error.message?.includes("Signup not allowed")) {
+          errorMessage = "Cadastro não permitido no momento. Entre em contato com o suporte.";
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
         toast({
           title: "Erro de autenticação",
-          description: error.message || "Ocorreu um erro durante a autenticação.",
+          description: errorMessage,
           variant: "destructive",
         });
         return;
