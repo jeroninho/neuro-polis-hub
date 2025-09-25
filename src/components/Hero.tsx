@@ -225,6 +225,19 @@ export const Hero = () => {
                   
                   <TabsContent value="login" className="space-y-4 mt-6">
                     <form onSubmit={(e) => handleSubmit(e, 'login')} className="space-y-4">
+                      <div className="bg-primary/10 border border-primary/20 p-3 rounded-lg mb-4">
+                        <div className="flex items-start gap-2">
+                          <Brain className="h-4 w-4 text-primary mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-primary">
+                              Acesso Administrativo
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Após fazer login, você verá um botão "Admin" no header para acessar o painel administrativo
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                       <div className="space-y-2">
                         <Label htmlFor="login-email">E-mail</Label>
                         <Input
