@@ -7,12 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, Play, ExternalLink, User, Settings, LogOut, Trophy, Clock, Star, Shield } from "lucide-react";
+import { BookOpen, Play, ExternalLink, User, Settings, LogOut, Trophy, Clock, Star } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useCourses, useArticles, useUserProfile, useUserProgress } from "@/hooks/useSupabaseData";
-import { useAdmin } from "@/hooks/useAdmin";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import abnpLogo from "@/assets/abnp-logo.png";
 
@@ -23,7 +22,6 @@ export const Dashboard = () => {
   const { articles, loading: articlesLoading } = useArticles();
   const { profile, loading: profileLoading, updateProfile } = useUserProfile(user?.id);
   const { progress, loading: progressLoading, updateProgress } = useUserProgress(user?.id);
-  const { isAdmin, loading: adminLoading } = useAdmin();
 
   const [activeTab, setActiveTab] = useState("courses");
   const [profileData, setProfileData] = useState({
@@ -104,28 +102,15 @@ export const Dashboard = () => {
             <p className="text-sm text-muted-foreground">
               Bem-vindo de volta, {profile?.display_name || user?.email?.split('@')[0] || 'usuário'}!
             </p>
-            <div className="flex items-center gap-2">
-              {isAdmin && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/admin')}
-                  className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
-                >
-                  <Shield className="h-4 w-4 mr-2" />
-                  Admin
-                </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sair
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair
+            </Button>
           </div>
         </div>
       </header>
