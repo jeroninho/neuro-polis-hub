@@ -59,6 +59,60 @@ export type Database = {
         }
         Relationships: []
       }
+      campaigns: {
+        Row: {
+          click_count: number | null
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          open_count: number | null
+          scheduled_at: string | null
+          sent_at: string | null
+          sent_count: number | null
+          status: string | null
+          subject: string
+          target_audience: Json | null
+          template: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          click_count?: number | null
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          open_count?: number | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_count?: number | null
+          status?: string | null
+          subject: string
+          target_audience?: Json | null
+          template?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          click_count?: number | null
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          open_count?: number | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_count?: number | null
+          status?: string | null
+          subject?: string
+          target_audience?: Json | null
+          template?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           created_at: string
@@ -95,6 +149,105 @@ export type Database = {
           title?: string
           updated_at?: string
           youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_broadcast: boolean | null
+          is_read: boolean | null
+          message_type: string | null
+          recipient_id: string | null
+          sender_id: string
+          target_audience: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_broadcast?: boolean | null
+          is_read?: boolean | null
+          message_type?: string | null
+          recipient_id?: string | null
+          sender_id: string
+          target_audience?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_broadcast?: boolean | null
+          is_read?: boolean | null
+          message_type?: string | null
+          recipient_id?: string | null
+          sender_id?: string
+          target_audience?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      offers: {
+        Row: {
+          coupon_code: string | null
+          created_at: string
+          current_uses: number | null
+          description: string | null
+          discount_amount: number | null
+          discount_percentage: number | null
+          external_url: string | null
+          final_price: number | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          original_price: number | null
+          title: string
+          updated_at: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          coupon_code?: string | null
+          created_at?: string
+          current_uses?: number | null
+          description?: string | null
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          external_url?: string | null
+          final_price?: number | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          original_price?: number | null
+          title: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          coupon_code?: string | null
+          created_at?: string
+          current_uses?: number | null
+          description?: string | null
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          external_url?: string | null
+          final_price?: number | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          original_price?: number | null
+          title?: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
         }
         Relationships: []
       }
@@ -169,6 +322,30 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       video_sessions: {
         Row: {
           completed: boolean
@@ -219,10 +396,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -349,6 +536,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
