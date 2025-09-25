@@ -5,6 +5,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { PlayCircle, Plus, Edit, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,6 +27,15 @@ interface Course {
 export const AdminCourses = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newCourse, setNewCourse] = useState({
+    title: '',
+    description: '',
+    youtube_url: '',
+    thumbnail_url: '',
+    duration_minutes: 0,
+    order_index: 0
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -75,6 +88,48 @@ export const AdminCourses = () => {
     }
   };
 
+  const createCourse = async () => {
+    if (!newCourse.title || !newCourse.youtube_url) {
+      toast({
+        title: "Erro",
+        description: "Título e URL do YouTube são obrigatórios",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('courses')
+        .insert([newCourse]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Curso criado com sucesso",
+      });
+
+      setIsDialogOpen(false);
+      setNewCourse({
+        title: '',
+        description: '',
+        youtube_url: '',
+        thumbnail_url: '',
+        duration_minutes: 0,
+        order_index: 0
+      });
+      fetchCourses();
+    } catch (error) {
+      console.error('Erro ao criar curso:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao criar curso",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
@@ -93,10 +148,87 @@ export const AdminCourses = () => {
             <p className="text-muted-foreground">Gerencie os cursos da plataforma</p>
           </div>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Curso
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Curso
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Criar Novo Curso</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Título *</Label>
+                <Input
+                  id="title"
+                  value={newCourse.title}
+                  onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
+                  placeholder="Digite o título do curso"
+                />
+              </div>
+              <div>
+                <Label htmlFor="description">Descrição</Label>
+                <Textarea
+                  id="description"
+                  value={newCourse.description}
+                  onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
+                  placeholder="Descrição do curso"
+                />
+              </div>
+              <div>
+                <Label htmlFor="youtube_url">URL do YouTube *</Label>
+                <Input
+                  id="youtube_url"
+                  value={newCourse.youtube_url}
+                  onChange={(e) => setNewCourse({ ...newCourse, youtube_url: e.target.value })}
+                  placeholder="https://youtube.com/watch?v=..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="thumbnail_url">URL da Thumbnail</Label>
+                <Input
+                  id="thumbnail_url"
+                  value={newCourse.thumbnail_url}
+                  onChange={(e) => setNewCourse({ ...newCourse, thumbnail_url: e.target.value })}
+                  placeholder="URL da imagem de capa"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="duration">Duração (min)</Label>
+                  <Input
+                    id="duration"
+                    type="number"
+                    value={newCourse.duration_minutes}
+                    onChange={(e) => setNewCourse({ ...newCourse, duration_minutes: parseInt(e.target.value) || 0 })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="order">Ordem</Label>
+                  <Input
+                    id="order"
+                    type="number"
+                    value={newCourse.order_index}
+                    onChange={(e) => setNewCourse({ ...newCourse, order_index: parseInt(e.target.value) || 0 })}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button onClick={createCourse} className="flex-1">
+                  Criar Curso
+                </Button>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Card>
