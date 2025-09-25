@@ -9,6 +9,13 @@ import NotFound from "./pages/NotFound";
 import FreeCourse from "./pages/FreeCourse";
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminUsers } from "./pages/admin/AdminUsers";
+import { AdminCourses } from "./pages/admin/AdminCourses";
+import { AdminArticles } from "./pages/admin/AdminArticles";
+import { AdminOffers } from "./pages/admin/AdminOffers";
+import { AdminCampaigns } from "./pages/admin/AdminCampaigns";
+import { AdminMessages } from "./pages/admin/AdminMessages";
+import { AdminSettings } from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -26,7 +33,13 @@ const App = () => (
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
-              {/* Admin sub-routes will be added later */}
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="courses" element={<AdminCourses />} />
+              <Route path="articles" element={<AdminArticles />} />
+              <Route path="offers" element={<AdminOffers />} />
+              <Route path="campaigns" element={<AdminCampaigns />} />
+              <Route path="messages" element={<AdminMessages />} />
+              <Route path="settings" element={<AdminSettings />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
