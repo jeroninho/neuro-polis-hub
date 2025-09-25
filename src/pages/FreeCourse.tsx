@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -10,46 +10,95 @@ import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { useVideoProgress } from "@/hooks/useVideoProgress";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  youtube_url: string;
+  duration_minutes: number;
+  order_index: number;
+}
 
 const FreeCourse = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [currentVideo, setCurrentVideo] = useState(0);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const videos = [
-    {
-      id: 1,
-      title: "Introdução à Neurociência Política",
-      description: "Fundamentos básicos da neurociência aplicada à política",
-      duration: "12 min",
-      youtubeId: "dQw4w9WgXcQ", // Placeholder - substitua pelos IDs reais dos vídeos
-    },
-    {
-      id: 2,
-      title: "Como o Cérebro Toma Decisões Políticas",
-      description: "Processos neurológicos por trás das escolhas políticas",
-      duration: "11 min",
-      youtubeId: "dQw4w9WgXcQ", // Placeholder
-    },
-    {
-      id: 3,
-      title: "Emoções e Racionalidade na Política",
-      description: "O papel das emoções nas decisões políticas",
-      duration: "10 min",
-      youtubeId: "dQw4w9WgXcQ", // Placeholder
-    },
-    {
-      id: 4,
-      title: "Aplicações Práticas - Casos Reais",
-      description: "Exemplos práticos de neurociência política em ação",
-      duration: "12 min",
-      youtubeId: "dQw4w9WgXcQ", // Placeholder
-    },
-  ];
+  // Extract YouTube ID from URL
+  const extractYouTubeId = (url: string) => {
+    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+    const match = url.match(regex);
+    return match ? match[1] : url;
+  };
 
-  const videoIds = videos.map(video => video.youtubeId);
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('is_active', true)
+          .order('order_index', { ascending: true });
+
+        if (error) throw error;
+        setCourses(data || []);
+      } catch (error) {
+        console.error('Erro ao buscar cursos:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao carregar cursos",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  const videos = courses.map(course => ({
+    id: course.id,
+    title: course.title,
+    description: course.description || "Sem descrição",
+    duration: course.duration_minutes ? `${course.duration_minutes} min` : "N/A",
+    youtubeId: extractYouTubeId(course.youtube_url || ""),
+  }));
+
+  const videoIds = videos.map(video => video.youtubeId).filter(id => id);
   const { getVideoProgress, getTotalProgress, loading: progressLoading } = useVideoProgress(videoIds);
   const totalProgress = getTotalProgress();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen gradient-dashboard flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (courses.length === 0) {
+    return (
+      <div className="min-h-screen gradient-dashboard flex items-center justify-center">
+        <Card className="p-8 text-center max-w-md">
+          <CardContent>
+            <h2 className="text-xl font-bold mb-4">Nenhum curso disponível</h2>
+            <p className="text-muted-foreground mb-4">
+              Os cursos ainda não foram adicionados pelo administrador.
+            </p>
+            <Button onClick={() => navigate("/")}>
+              Voltar ao Início
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const handleVideoProgress = (percentage: number, watchTime: number, currentTime: number) => {
     // Progress is automatically saved by the YouTube player component
@@ -89,8 +138,10 @@ const FreeCourse = () => {
               </div>
             </div>
             <div className="text-center">
-              <h2 className="text-lg font-semibold">Curso Gratuito de Neurociência Política</h2>
-              <p className="text-sm text-muted-foreground">45 minutos • 4 vídeos</p>
+              <h2 className="text-lg font-semibold">Cursos Disponíveis</h2>
+              <p className="text-sm text-muted-foreground">
+                {courses.reduce((total, course) => total + (course.duration_minutes || 0), 0)} minutos • {courses.length} vídeos
+              </p>
             </div>
             <div className="text-right">
               <p className="text-sm font-medium">Progresso</p>
