@@ -1,5 +1,6 @@
 import { Hero } from "@/components/Hero";
 import { Dashboard } from "@/components/Dashboard";
+import { AdminLoginInfo } from "@/components/AdminLoginInfo";
 import { useAuth } from "@/contexts/AuthContext";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
@@ -18,7 +19,12 @@ const Index = () => {
     return <Dashboard />;
   }
 
-  return <Hero />;
+  return (
+    <>
+      <Hero />
+      <AdminLoginInfo />
+    </>
+  );
 };
 
 export default Index;
