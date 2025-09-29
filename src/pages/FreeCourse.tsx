@@ -29,11 +29,33 @@ const FreeCourse = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Extract YouTube ID from URL
-  const extractYouTubeId = (url: string) => {
-    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
-    const match = url.match(regex);
-    return match ? match[1] : url;
+  // Extract YouTube ID from URL - Enhanced regex for better compatibility
+  const extractYouTubeId = (url: string): string => {
+    if (!url || typeof url !== 'string') return '';
+    
+    const patterns = [
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=)([^&\n?#]+)/,
+      /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/)([^&\n?#]+)/,
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/embed\/)([^&\n?#]+)/,
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/v\/)([^&\n?#]+)/,
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/.*[?&]v=)([^&\n?#]+)/
+    ];
+    
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    
+    // If no pattern matches, check if it's already a valid YouTube ID (11 characters)
+    const cleanUrl = url.trim();
+    if (/^[a-zA-Z0-9_-]{11}$/.test(cleanUrl)) {
+      return cleanUrl;
+    }
+    
+    console.warn('Could not extract YouTube ID from URL:', url);
+    return '';
   };
 
   useEffect(() => {
@@ -68,11 +90,15 @@ const FreeCourse = () => {
     description: course.description || "Sem descrição",
     duration: course.duration_minutes ? `${course.duration_minutes} min` : "N/A",
     youtubeId: extractYouTubeId(course.youtube_url || ""),
-  }));
+  })).filter(video => video.youtubeId); // Only include videos with valid YouTube IDs
 
-  const videoIds = videos.map(video => video.youtubeId).filter(id => id);
+  const videoIds = videos.map(video => video.youtubeId);
   const { getVideoProgress, getTotalProgress, loading: progressLoading } = useVideoProgress(videoIds);
   const totalProgress = getTotalProgress();
+
+  // Safety check for current video index
+  const currentVideoSafe = Math.max(0, Math.min(currentVideo, videos.length - 1));
+  const currentVideoData = videos[currentVideoSafe];
 
   if (loading) {
     return (
@@ -82,14 +108,19 @@ const FreeCourse = () => {
     );
   }
 
-  if (courses.length === 0) {
+  if (courses.length === 0 || videos.length === 0) {
     return (
       <div className="min-h-screen gradient-dashboard flex items-center justify-center">
         <Card className="p-8 text-center max-w-md">
           <CardContent>
-            <h2 className="text-xl font-bold mb-4">Nenhum curso disponível</h2>
+            <h2 className="text-xl font-bold mb-4">
+              {courses.length === 0 ? "Nenhum curso disponível" : "Vídeos indisponíveis"}
+            </h2>
             <p className="text-muted-foreground mb-4">
-              Os cursos ainda não foram adicionados pelo administrador.
+              {courses.length === 0 
+                ? "Os cursos ainda não foram adicionados pelo administrador."
+                : "Os cursos não possuem URLs de vídeo válidas."
+              }
             </p>
             <Button onClick={() => navigate("/")}>
               Voltar ao Início
@@ -158,9 +189,10 @@ const FreeCourse = () => {
             <div className="space-y-4">
               {/* Video Player */}
               <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                {user ? (
+                {user && currentVideoData ? (
                   <YouTubePlayer
-                    videoId={videos[currentVideo].youtubeId}
+                    key={currentVideoData.youtubeId} // Force re-render when video changes
+                    videoId={currentVideoData.youtubeId}
                     onProgress={handleVideoProgress}
                     onComplete={handleVideoComplete}
                     autoResume={true}
@@ -168,7 +200,7 @@ const FreeCourse = () => {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-black text-white">
-                    <p>Faça login para assistir aos vídeos</p>
+                    <p>{!user ? "Faça login para assistir aos vídeos" : "Vídeo não disponível"}</p>
                   </div>
                 )}
               </div>
@@ -177,24 +209,24 @@ const FreeCourse = () => {
               <div className="space-y-4">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-2xl font-bold mb-2">{videos[currentVideo].title}</h3>
+                    <h3 className="text-2xl font-bold mb-2">{currentVideoData?.title || "Vídeo não encontrado"}</h3>
                     <p className="text-muted-foreground mb-3">
-                      {videos[currentVideo].description}
+                      {currentVideoData?.description || "Sem descrição"}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
-                    {getVideoProgress(videos[currentVideo].youtubeId).percentage}% assistido
+                    {currentVideoData ? getVideoProgress(currentVideoData.youtubeId).percentage : 0}% assistido
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-4">
                   <Badge variant="outline" className="bg-primary text-primary-foreground">
                     <Clock className="h-3 w-3 mr-1" />
-                    {videos[currentVideo].duration}
+                    {currentVideoData?.duration || "N/A"}
                   </Badge>
                   <Badge variant="outline" className="bg-primary text-primary-foreground">
-                    Vídeo {currentVideo + 1} de {videos.length}
+                    Vídeo {currentVideoSafe + 1} de {videos.length}
                   </Badge>
                 </div>
                 
@@ -207,7 +239,7 @@ const FreeCourse = () => {
                   <Progress value={totalProgress.completionPercentage} className="h-2" />
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Tempo total assistido: {totalProgress.totalWatchTime} min</span>
-                    <span>{getVideoProgress(videos[currentVideo].youtubeId).watchTime}s neste vídeo</span>
+                    <span>{currentVideoData ? getVideoProgress(currentVideoData.youtubeId).watchTime : 0}s neste vídeo</span>
                   </div>
                 </div>
               </div>
@@ -235,7 +267,13 @@ const FreeCourse = () => {
                         ? "border-primary bg-blue-50 dark:bg-blue-950/20" 
                         : "border-border hover:border-primary/50"
                     }`}
-                    onClick={() => setCurrentVideo(index)}
+                    onClick={() => {
+                      setCurrentVideo(index);
+                      // Reset to safe bounds if needed
+                      if (index >= videos.length) {
+                        setCurrentVideo(0);
+                      }
+                    }}
                   >
                     <div className="flex items-start gap-3">
                       <div className="shrink-0 mt-0.5">

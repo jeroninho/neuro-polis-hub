@@ -112,7 +112,7 @@ export const YouTubePlayer = ({
         .eq('video_id', videoId)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (existingSession && !existingSession.completed) {
         setSessionId(existingSession.id);
@@ -183,8 +183,7 @@ export const YouTubePlayer = ({
                 const completionPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
                 if (completionPercentage >= 80) {
                   saveProgress(currentTime, duration, true);
-                  onComplete?.(
-                  );
+                  onComplete?.();
                   if (intervalRef.current) {
                     clearInterval(intervalRef.current);
                   }
