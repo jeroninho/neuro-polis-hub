@@ -71,12 +71,18 @@ export const AdminCourses = () => {
 
   const fetchCourses = async () => {
     try {
+      console.log('AdminCourses: Fetching courses...');
       const { data, error } = await supabase
         .from('courses')
         .select('*')
         .order('order_index', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('AdminCourses: Error fetching courses:', error);
+        throw error;
+      }
+      
+      console.log('AdminCourses: Courses fetched:', data);
       setCourses(data || []);
     } catch (error) {
       console.error('Erro ao buscar cursos:', error);

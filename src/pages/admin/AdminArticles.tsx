@@ -76,12 +76,18 @@ export const AdminArticles = () => {
 
   const fetchArticles = async () => {
     try {
+      console.log('AdminArticles: Fetching articles...');
       const { data, error } = await supabase
         .from('articles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('AdminArticles: Error fetching articles:', error);
+        throw error;
+      }
+      
+      console.log('AdminArticles: Articles fetched:', data);
       setArticles(data || []);
     } catch (error) {
       console.error('Erro ao buscar artigos:', error);

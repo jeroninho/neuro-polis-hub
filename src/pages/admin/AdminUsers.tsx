@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface User {
   id: string;
+  user_id: string;
   display_name: string;
   created_at: string;
   email_notifications: boolean;
@@ -44,7 +45,7 @@ export const AdminUsers = () => {
 
       const usersWithRoles = profiles?.map(profile => ({
         ...profile,
-        user_roles: userRoles?.filter(role => role.user_id === profile.id) || []
+        user_roles: userRoles?.filter(role => role.user_id === profile.user_id) || []
       })) || [];
 
       setUsers(usersWithRoles);
@@ -60,12 +61,12 @@ export const AdminUsers = () => {
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: 'admin' | 'moderator' | 'user') => {
+  const updateUserRole = async (userIdFromProfile: string, newRole: 'admin' | 'moderator' | 'user') => {
     try {
       const { error } = await supabase
         .from('user_roles')
         .upsert({
-          user_id: userId,
+          user_id: userIdFromProfile,
           role: newRole
         });
 
@@ -154,7 +155,7 @@ export const AdminUsers = () => {
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => updateUserRole(user.id, 'admin')}
+                        onClick={() => updateUserRole(user.user_id, 'admin')}
                       >
                         <Shield className="mr-1 h-3 w-3" />
                         Admin
@@ -162,7 +163,7 @@ export const AdminUsers = () => {
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => updateUserRole(user.id, 'user')}
+                        onClick={() => updateUserRole(user.user_id, 'user')}
                       >
                         Usuário
                       </Button>
