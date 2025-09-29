@@ -13,7 +13,10 @@ export const useAdmin = () => {
 
   useEffect(() => {
     const checkUserRole = async () => {
+      console.log('useAdmin: Starting role check for user:', user?.id);
+      
       if (!user) {
+        console.log('useAdmin: No user found, setting defaults');
         setIsAdmin(false);
         setIsModerator(false);
         setRole(null);
@@ -22,31 +25,34 @@ export const useAdmin = () => {
       }
 
       try {
+        console.log('useAdmin: Fetching user role from database');
         const { data: roleData, error } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
           .order('role', { ascending: true }) // admin first, then moderator, then user
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (error) {
-          console.error('Error checking user role:', error);
+          console.error('useAdmin: Error checking user role:', error);
           setRole('user');
           setIsAdmin(false);
           setIsModerator(false);
         } else {
           const userRole = roleData?.role as UserRole || 'user';
+          console.log('useAdmin: User role determined:', userRole);
           setRole(userRole);
           setIsAdmin(userRole === 'admin');
           setIsModerator(userRole === 'admin' || userRole === 'moderator');
         }
       } catch (error) {
-        console.error('Error in checkUserRole:', error);
+        console.error('useAdmin: Error in checkUserRole:', error);
         setRole('user');
         setIsAdmin(false);
         setIsModerator(false);
       } finally {
+        console.log('useAdmin: Role check completed');
         setLoading(false);
       }
     };
