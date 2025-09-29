@@ -7,6 +7,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import FreeCourse from "./pages/FreeCourse";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminUsers } from "./pages/admin/AdminUsers";
@@ -29,6 +31,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/curso-gratuito" element={<FreeCourse />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>

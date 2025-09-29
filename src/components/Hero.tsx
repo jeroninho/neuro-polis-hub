@@ -7,10 +7,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, BookOpen, Award, Users } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import abnpLogo from "@/assets/abnp-logo.png";
+import { z } from "zod";
+
+const registerSchema = z.object({
+  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(100, "Nome muito longo"),
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres").max(100, "Senha muito longa"),
+  phone: z.string().optional(),
+});
+
+const loginSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(1, "Senha é obrigatória"),
+});
 
 export const Hero = () => {
   const { signUp, signIn } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -21,23 +36,22 @@ export const Hero = () => {
   const handleSubmit = async (e: React.FormEvent, type: 'login' | 'register') => {
     e.preventDefault();
     
-    // Basic validation
-    if (!formData.email || !formData.password) {
-      toast({
-        title: "Erro de validação",
-        description: "Por favor, preencha todos os campos obrigatórios.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (type === 'register' && !formData.name) {
-      toast({
-        title: "Erro de validação",
-        description: "Nome é obrigatório para o cadastro.",
-        variant: "destructive",
-      });
-      return;
+    try {
+      // Validate form data with Zod
+      if (type === 'register') {
+        registerSchema.parse(formData);
+      } else {
+        loginSchema.parse(formData);
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Erro de validação",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     try {
@@ -268,6 +282,16 @@ export const Hero = () => {
                       >
                         Entrar no Painel
                       </Button>
+                      <div className="text-center mt-4">
+                        <Button
+                          type="button"
+                          variant="link" 
+                          className="text-sm text-muted-foreground hover:text-primary"
+                          onClick={() => navigate("/forgot-password")}
+                        >
+                          Esqueci minha senha
+                        </Button>
+                      </div>
                     </form>
                   </TabsContent>
                 </Tabs>
