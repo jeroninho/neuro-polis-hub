@@ -9,7 +9,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { PlayCircle, Plus, Edit, Eye } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { PlayCircle, Plus, Edit, Eye, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Course {
@@ -24,19 +26,44 @@ interface Course {
   created_at: string;
 }
 
+interface CourseFormData {
+  title: string;
+  description: string;
+  youtube_url: string;
+  thumbnail_url: string;
+  duration_minutes: number;
+  order_index: number;
+  is_active: boolean;
+}
+
 export const AdminCourses = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newCourse, setNewCourse] = useState({
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [formData, setFormData] = useState<CourseFormData>({
     title: '',
     description: '',
     youtube_url: '',
     thumbnail_url: '',
     duration_minutes: 0,
-    order_index: 0
+    order_index: 0,
+    is_active: true
   });
   const { toast } = useToast();
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      youtube_url: '',
+      thumbnail_url: '',
+      duration_minutes: 0,
+      order_index: 0,
+      is_active: true
+    });
+    setEditingCourse(null);
+  };
 
   useEffect(() => {
     fetchCourses();
@@ -88,8 +115,8 @@ export const AdminCourses = () => {
     }
   };
 
-  const createCourse = async () => {
-    if (!newCourse.title || !newCourse.youtube_url) {
+  const handleSubmit = async () => {
+    if (!formData.title || !formData.youtube_url) {
       toast({
         title: "Erro",
         description: "Título e URL do YouTube são obrigatórios",
@@ -99,35 +126,88 @@ export const AdminCourses = () => {
     }
 
     try {
+      if (editingCourse) {
+        // Editar curso existente
+        const { error } = await supabase
+          .from('courses')
+          .update(formData)
+          .eq('id', editingCourse.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Sucesso",
+          description: "Curso atualizado com sucesso",
+        });
+      } else {
+        // Criar novo curso
+        const { error } = await supabase
+          .from('courses')
+          .insert([formData]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Sucesso",
+          description: "Curso criado com sucesso",
+        });
+      }
+
+      setIsDialogOpen(false);
+      resetForm();
+      fetchCourses();
+    } catch (error) {
+      console.error('Erro ao salvar curso:', error);
+      toast({
+        title: "Erro",
+        description: `Erro ao ${editingCourse ? 'atualizar' : 'criar'} curso`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = (course: Course) => {
+    setEditingCourse(course);
+    setFormData({
+      title: course.title,
+      description: course.description || '',
+      youtube_url: course.youtube_url || '',
+      thumbnail_url: course.thumbnail_url || '',
+      duration_minutes: course.duration_minutes || 0,
+      order_index: course.order_index || 0,
+      is_active: course.is_active
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (courseId: string) => {
+    try {
       const { error } = await supabase
         .from('courses')
-        .insert([newCourse]);
+        .delete()
+        .eq('id', courseId);
 
       if (error) throw error;
 
       toast({
         title: "Sucesso",
-        description: "Curso criado com sucesso",
+        description: "Curso deletado com sucesso",
       });
-
-      setIsDialogOpen(false);
-      setNewCourse({
-        title: '',
-        description: '',
-        youtube_url: '',
-        thumbnail_url: '',
-        duration_minutes: 0,
-        order_index: 0
-      });
+      
       fetchCourses();
     } catch (error) {
-      console.error('Erro ao criar curso:', error);
+      console.error('Erro ao deletar curso:', error);
       toast({
         title: "Erro",
-        description: "Erro ao criar curso",
+        description: "Erro ao deletar curso",
         variant: "destructive",
       });
     }
+  };
+
+  const openCreateDialog = () => {
+    resetForm();
+    setIsDialogOpen(true);
   };
 
   if (loading) {
@@ -148,24 +228,28 @@ export const AdminCourses = () => {
             <p className="text-muted-foreground">Gerencie os cursos da plataforma</p>
           </div>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Curso
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
+        <Button onClick={openCreateDialog}>
+          <Plus className="mr-2 h-4 w-4" />
+          Novo Curso
+        </Button>
+        
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) resetForm();
+        }}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Criar Novo Curso</DialogTitle>
+              <DialogTitle>
+                {editingCourse ? 'Editar Curso' : 'Criar Novo Curso'}
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="title">Título *</Label>
                 <Input
                   id="title"
-                  value={newCourse.title}
-                  onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Digite o título do curso"
                 />
               </div>
@@ -173,17 +257,18 @@ export const AdminCourses = () => {
                 <Label htmlFor="description">Descrição</Label>
                 <Textarea
                   id="description"
-                  value={newCourse.description}
-                  onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Descrição do curso"
+                  rows={3}
                 />
               </div>
               <div>
                 <Label htmlFor="youtube_url">URL do YouTube *</Label>
                 <Input
                   id="youtube_url"
-                  value={newCourse.youtube_url}
-                  onChange={(e) => setNewCourse({ ...newCourse, youtube_url: e.target.value })}
+                  value={formData.youtube_url}
+                  onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
                   placeholder="https://youtube.com/watch?v=..."
                 />
               </div>
@@ -191,8 +276,8 @@ export const AdminCourses = () => {
                 <Label htmlFor="thumbnail_url">URL da Thumbnail</Label>
                 <Input
                   id="thumbnail_url"
-                  value={newCourse.thumbnail_url}
-                  onChange={(e) => setNewCourse({ ...newCourse, thumbnail_url: e.target.value })}
+                  value={formData.thumbnail_url}
+                  onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
                   placeholder="URL da imagem de capa"
                 />
               </div>
@@ -202,9 +287,10 @@ export const AdminCourses = () => {
                   <Input
                     id="duration"
                     type="number"
-                    value={newCourse.duration_minutes}
-                    onChange={(e) => setNewCourse({ ...newCourse, duration_minutes: parseInt(e.target.value) || 0 })}
+                    value={formData.duration_minutes}
+                    onChange={(e) => setFormData({ ...formData, duration_minutes: parseInt(e.target.value) || 0 })}
                     placeholder="0"
+                    min="0"
                   />
                 </div>
                 <div>
@@ -212,15 +298,24 @@ export const AdminCourses = () => {
                   <Input
                     id="order"
                     type="number"
-                    value={newCourse.order_index}
-                    onChange={(e) => setNewCourse({ ...newCourse, order_index: parseInt(e.target.value) || 0 })}
+                    value={formData.order_index}
+                    onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value) || 0 })}
                     placeholder="0"
+                    min="0"
                   />
                 </div>
               </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is_active"
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                />
+                <Label htmlFor="is_active">Curso ativo</Label>
+              </div>
               <div className="flex gap-2 pt-4">
-                <Button onClick={createCourse} className="flex-1">
-                  Criar Curso
+                <Button onClick={handleSubmit} className="flex-1">
+                  {editingCourse ? 'Atualizar Curso' : 'Criar Curso'}
                 </Button>
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
@@ -274,11 +369,11 @@ export const AdminCourses = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button size="sm" variant="outline">
-                        <Eye className="mr-1 h-3 w-3" />
-                        Ver
-                      </Button>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleEdit(course)}
+                      >
                         <Edit className="mr-1 h-3 w-3" />
                         Editar
                       </Button>
@@ -289,6 +384,31 @@ export const AdminCourses = () => {
                       >
                         {course.is_active ? 'Desativar' : 'Ativar'}
                       </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size="sm" variant="destructive">
+                            <Trash2 className="mr-1 h-3 w-3" />
+                            Deletar
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Esta ação não pode ser desfeita. Isso deletará permanentemente o curso "{course.title}".
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleDelete(course.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Deletar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </TableCell>
                 </TableRow>
