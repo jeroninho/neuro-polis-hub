@@ -278,6 +278,33 @@ export type Database = {
         }
         Relationships: []
       }
+      settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value: Json | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Relationships: []
+      }
       user_progress: {
         Row: {
           completed_at: string | null
@@ -353,6 +380,7 @@ export type Database = {
           created_at: string
           id: string
           last_position_seconds: number
+          progress_seconds: number | null
           session_end: string | null
           session_start: string
           updated_at: string
@@ -367,6 +395,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_position_seconds?: number
+          progress_seconds?: number | null
           session_end?: string | null
           session_start?: string
           updated_at?: string
@@ -381,6 +410,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_position_seconds?: number
+          progress_seconds?: number | null
           session_end?: string | null
           session_start?: string
           updated_at?: string
