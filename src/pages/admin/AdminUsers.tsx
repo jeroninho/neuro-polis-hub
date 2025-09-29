@@ -44,7 +44,7 @@ export const AdminUsers = () => {
 
       const usersWithRoles = profiles?.map(profile => ({
         ...profile,
-        user_roles: userRoles?.filter(role => role.user_id === profile.user_id) || []
+        user_roles: userRoles?.filter(role => role.user_id === profile.id) || []
       })) || [];
 
       setUsers(usersWithRoles);
