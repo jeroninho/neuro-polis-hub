@@ -28,6 +28,7 @@ export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("courses");
   const [profileData, setProfileData] = useState({
     display_name: profile?.display_name || '',
+    phone: profile?.phone || '',
     email: user?.email || '',
     email_notifications: profile?.email_notifications ?? true
   });
@@ -36,6 +37,7 @@ export const Dashboard = () => {
     if (profile) {
       setProfileData({
         display_name: profile.display_name || '',
+        phone: profile.phone || '',
         email: user?.email || '',
         email_notifications: profile.email_notifications
       });
@@ -47,6 +49,7 @@ export const Dashboard = () => {
     
     const { error } = await updateProfile({
       display_name: profileData.display_name,
+      phone: profileData.phone,
       email_notifications: profileData.email_notifications
     });
 
@@ -375,6 +378,16 @@ export const Dashboard = () => {
                           value={profileData.display_name}
                           onChange={(e) => setProfileData(prev => ({ ...prev, display_name: e.target.value }))}
                           placeholder="Seu nome completo"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="phone">Telefone</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={profileData.phone}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                          placeholder="(11) 99999-9999"
                         />
                       </div>
                       <div>
