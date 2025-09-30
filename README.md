@@ -151,4 +151,4 @@ Todos os direitos reservados à Academia Brasileira de Neurociência Política.
 
 ---
 
-**Desenvolvido com ❤️ para transformar a educação em neurociência política no Brasil**
+**Desenvolvido com ❤️ para transformar a educação em neurociência política no Brasil**"# NeuroHub" 
