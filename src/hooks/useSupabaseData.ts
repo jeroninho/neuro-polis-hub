@@ -33,6 +33,7 @@ export interface UserProfile {
   id: string;
   user_id: string;
   display_name: string | null;
+  phone_number: string | null;
   email_notifications: boolean;
   created_at: string;
   updated_at: string;
